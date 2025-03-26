@@ -17,19 +17,19 @@ public class UserController {
     private UserService userService;
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')") // Chỉ ADMIN tạo được user mới
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<User> createUser(@RequestBody User user) {
         return ResponseEntity.ok(userService.createUser(user));
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')") // Cả USER và ADMIN xem được
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')") // Cả USER và ADMIN xem được
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         Optional<User> user = userService.getUserById(id);
         return user.map(ResponseEntity::ok)
@@ -37,13 +37,13 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')") // Cả USER và ADMIN sửa được
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
         return ResponseEntity.ok(userService.updateUser(id, user));
     }
 
     @DeleteMapping("/delete/{id}")
-    @PreAuthorize("hasRole('ADMIN')") // Chỉ ADMIN xóa được
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         String result = userService.deleteUser(id);
         if ("User not found".equals(result)) {

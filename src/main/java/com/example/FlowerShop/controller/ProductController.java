@@ -35,7 +35,7 @@ public class ProductController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')") // Cả USER và ADMIN đều được xem
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<Map<String, Object>> getAllProducts() {
         List<Product> products = productService.getAllProducts();
         Map<String, Object> response = Map.of(
@@ -47,7 +47,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')") // Cả USER và ADMIN đều được xem
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<Map<String, Object>> getProductById(@PathVariable Long id) {
         Product product = productService.getProductById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
@@ -61,7 +61,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')") // Chỉ ADMIN được cập nhật
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> updateProduct(@PathVariable Long id, @RequestBody Product product) {
         Product updatedProduct = productService.updateProduct(id, product);
         Map<String, Object> response = Map.of(
@@ -73,7 +73,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')") // Chỉ ADMIN được xóa
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         Map<String, Object> response = Map.of(
