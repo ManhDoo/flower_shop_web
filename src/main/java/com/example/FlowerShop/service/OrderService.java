@@ -5,10 +5,8 @@ import com.example.FlowerShop.dto.request.OrderDetailRequest;
 import com.example.FlowerShop.dto.request.OrderRequest;
 import com.example.FlowerShop.dto.response.OrderDetailResponse;
 import com.example.FlowerShop.dto.response.OrderResponse;
-import com.example.FlowerShop.model.Order;
-import com.example.FlowerShop.model.OrderDetail;
-import com.example.FlowerShop.model.Product;
-import com.example.FlowerShop.model.User;
+import com.example.FlowerShop.exception.ResourceNotFoundException;
+import com.example.FlowerShop.model.*;
 import com.example.FlowerShop.repository.OrderDetailRepository;
 import com.example.FlowerShop.repository.OrderRepository;
 import com.example.FlowerShop.repository.ProductRepository;
@@ -54,7 +52,7 @@ public class OrderService {
         Order order = new Order();
         order.setUser(user);
         order.setCreate_at(LocalDateTime.now());
-        order.setStatus("PENDING");
+        order.setStatus(OrderStatus.PENDING);
         order = orderRepository.save(order);
 
         double totalPrice = processNewOrderDetails(order, req);
@@ -62,7 +60,7 @@ public class OrderService {
         order.setTotal_price(totalPrice);
         orderRepository.save(order);
 
-        return new OrderResponse(order.getId(), order.getTotal_price(), order.getCreate_at(), order.getStatus());
+        return new OrderResponse(order.getId(), order.getTotal_price(), order.getCreate_at(), order.getStatus().name(), order.getUser().getId(), order.getUser().getName());
     }
     private void restockProducts(Order order) {
         List<OrderDetail> oldOrderDetails = orderDetailRepository.findAllByOrder(order);
@@ -110,12 +108,46 @@ public class OrderService {
     }
 
 
-    public List<Order> getAllOrders() {
-        return orderRepository.findAll();
+    public List<OrderResponse> getAllOrders() {
+        return orderRepository.findAll()
+                .stream()
+                .map(order -> new OrderResponse(
+
+                        order.getId(),
+                        order.getTotal_price(),
+                        order.getCreate_at(),
+                        order.getStatus().name(),
+                        order.getUser().getId(),
+                        order.getUser().getName(),
+                        orderDetailRepository.findAllByOrder(order).stream()
+                                .map(detail -> new OrderDetailResponse(
+                                        detail.getProduct().getId(),
+                                        detail.getProduct().getName(),
+                                        detail.getQuantity(),
+                                        detail.getPrice()
+                                )).collect(Collectors.toList())
+                )).collect(Collectors.toList());
     }
 
-    public Optional<Order> getOrderById(Long id) {
-        return orderRepository.findById(id);
+    public List<OrderResponse> getOrderById(Long id) {
+        return orderRepository.findById(id)
+                .stream()
+                .map(order -> new OrderResponse(
+
+                        order.getId(),
+                        order.getTotal_price(),
+                        order.getCreate_at(),
+                        order.getStatus().name(),
+                        order.getUser().getId(),
+                        order.getUser().getName(),
+                        orderDetailRepository.findAllByOrder(order).stream()
+                                .map(detail -> new OrderDetailResponse(
+                                        detail.getProduct().getId(),
+                                        detail.getProduct().getName(),
+                                        detail.getQuantity(),
+                                        detail.getPrice()
+                                )).collect(Collectors.toList())
+                )).collect(Collectors.toList());
     }
 
 
@@ -137,8 +169,13 @@ public class OrderService {
         double totalPrice = processNewOrderDetails(order, req);
 
         order.setTotal_price(totalPrice);
-        order.setStatus(req.getStatus() != null ? req.getStatus() : order.getStatus());
-
+        if (req.getStatus() != null) {
+            try {
+                order.setStatus(OrderStatus.valueOf(req.getStatus())); // Chuyển từ String → Enum
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException("Invalid order status: " + req.getStatus());
+            }
+        }
         return orderRepository.save(order);
     }
 
@@ -168,7 +205,9 @@ public class OrderService {
                         order.getId(),
                         order.getTotal_price(),
                         order.getCreate_at(),
-                        order.getStatus(),
+                        order.getStatus().name(),
+                        order.getUser().getId(),
+                        order.getUser().getName(),
                         orderDetailRepository.findAllByOrder(order).stream()
                                 .map(detail -> new OrderDetailResponse(
                                         detail.getProduct().getId(),
@@ -179,8 +218,34 @@ public class OrderService {
                 )).collect(Collectors.toList());
     }
 
-//    public Order UpdateOrderStatus(Long id){
-//
-//        return orderRepository.save();
-//    }
+    @Transactional
+    public OrderResponse updateOrderStatus(Long orderId, OrderStatus newStatus) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + orderId));
+
+        // Kiểm tra nếu trạng thái mới hợp lệ
+        if (order.getStatus() == OrderStatus.CANCELLED) {
+            throw new IllegalStateException("Cannot update a cancelled order!");
+        }
+
+        order.setStatus(newStatus);
+        Order updatedOrder = orderRepository.save(order);
+
+        // Chuyển đổi sang OrderResponse giống getOrderById()
+        return new OrderResponse(
+                updatedOrder.getId(),
+                updatedOrder.getTotal_price(),
+                updatedOrder.getCreate_at(),
+                updatedOrder.getStatus().name(),
+                updatedOrder.getUser().getId(),
+                updatedOrder.getUser().getName(),
+                orderDetailRepository.findAllByOrder(updatedOrder).stream()
+                        .map(detail -> new OrderDetailResponse(
+                                detail.getProduct().getId(),
+                                detail.getProduct().getName(),
+                                detail.getQuantity(),
+                                detail.getPrice()
+                        )).collect(Collectors.toList())
+        );
+    }
 }

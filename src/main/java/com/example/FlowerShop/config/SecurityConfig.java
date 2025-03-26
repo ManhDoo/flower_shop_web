@@ -26,7 +26,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll() // Cho phép tất cả truy cập đăng ký/đăng nhập
                         .requestMatchers("/api/users/**").hasAnyAuthority("USER", "ADMIN") // CRUD cho USER và ADMIN
                         .requestMatchers("/api/users/delete/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")// Chỉ ADMIN được xóa
+                        .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()// Chỉ ADMIN được xóa
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

@@ -1,10 +1,12 @@
 package com.example.FlowerShop.service;
 
 import com.example.FlowerShop.dto.request.ProductRequest;
+import com.example.FlowerShop.exception.ResourceNotFoundException;
 import com.example.FlowerShop.model.Product;
 import com.example.FlowerShop.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -53,11 +55,11 @@ public Product createProduct(ProductRequest req) {
         return productRepository.save(product);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public void deleteProduct(Long id) {
-        Optional<Product> productOpt = productRepository.findById(id);
-        if (productOpt.isEmpty()) {
-            throw new RuntimeException("Product not found");
-        }
-        productRepository.deleteById(id);
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm không tồn tại"));
+
+        productRepository.delete(product);
     }
 }

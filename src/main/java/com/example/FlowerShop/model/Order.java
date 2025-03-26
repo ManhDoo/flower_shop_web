@@ -21,7 +21,9 @@ public class Order {
     private User user;
     private double total_price;
     private LocalDateTime create_at;
-    private String status;
+
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
 
 
 }
