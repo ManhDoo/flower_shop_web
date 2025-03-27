@@ -27,6 +27,7 @@ public Product createProduct(ProductRequest req) {
     Product product = new Product();
     product.setName(req.getName());
     product.setDescription(req.getDescription());
+    product.setImage(req.getImage());
     product.setPrice(req.getPrice());
     product.setStock(req.getStock());
     Product saveProduct = productRepository.save(product);
@@ -49,6 +50,7 @@ public Product createProduct(ProductRequest req) {
         }
         Product product = productOpt.get();
         product.setName(updatedProduct.getName());
+        product.setImage(updatedProduct.getImage());
         product.setPrice(updatedProduct.getPrice());
         product.setDescription(updatedProduct.getDescription());
         product.setStock(updatedProduct.getStock());

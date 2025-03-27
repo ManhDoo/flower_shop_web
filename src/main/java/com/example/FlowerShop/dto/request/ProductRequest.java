@@ -13,6 +13,9 @@ public class ProductRequest {
     @Size(max = 100, message = "Product name cannot be longer than 100 characters")
     private String name;
 
+    @NotBlank(message = "Product image cannot be blank")
+    private String image;
+
     @NotNull(message = "Product price cannot be blank")
     @PositiveOrZero(message = "Product price cannot be negative number")
     private double price;

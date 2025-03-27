@@ -123,6 +123,7 @@ public class OrderService {
                                 .map(detail -> new OrderDetailResponse(
                                         detail.getProduct().getId(),
                                         detail.getProduct().getName(),
+                                        detail.getProduct().getImage(),
                                         detail.getQuantity(),
                                         detail.getPrice()
                                 )).collect(Collectors.toList())
@@ -144,6 +145,7 @@ public class OrderService {
                                 .map(detail -> new OrderDetailResponse(
                                         detail.getProduct().getId(),
                                         detail.getProduct().getName(),
+                                        detail.getProduct().getImage(),
                                         detail.getQuantity(),
                                         detail.getPrice()
                                 )).collect(Collectors.toList())
@@ -212,6 +214,7 @@ public class OrderService {
                                 .map(detail -> new OrderDetailResponse(
                                         detail.getProduct().getId(),
                                         detail.getProduct().getName(),
+                                        detail.getProduct().getImage(),
                                         detail.getQuantity(),
                                         detail.getPrice()
                                 )).collect(Collectors.toList())
@@ -243,6 +246,7 @@ public class OrderService {
                         .map(detail -> new OrderDetailResponse(
                                 detail.getProduct().getId(),
                                 detail.getProduct().getName(),
+                                detail.getProduct().getImage(),
                                 detail.getQuantity(),
                                 detail.getPrice()
                         )).collect(Collectors.toList())
