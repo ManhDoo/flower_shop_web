@@ -1,13 +1,12 @@
-FROM maven:3.9.9-eclipse-temurin-17 AS build
-
-COPY . /app
+# Use official OpenJDK image
+FROM openjdk:17
 WORKDIR /app
 
-RUN mvn clean package -DskipTests
+# Copy jar file
+COPY target/*.jar app.jar
 
-FROM eclipse-temurin:17-jdk-slim
-COPY --from=build /app/target/FlowerShop-0.0.1-SNAPSHOT.jar app.jar
-
+# Expose port
 EXPOSE 8080
 
+# Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
