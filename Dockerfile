@@ -3,7 +3,7 @@ FROM openjdk:17
 WORKDIR /app
 
 # Copy jar file
-COPY target/*.jar app.jar
+COPY target/FlowerShop-0.0.1-SNAPSHOT.jar app.jar
 
 # Expose port
 EXPOSE 8080
