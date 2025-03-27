@@ -13,6 +13,7 @@ import com.example.FlowerShop.repository.ProductRepository;
 import com.example.FlowerShop.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -183,18 +184,38 @@ public class OrderService {
 
 
     @Transactional
-    public void deleteOrder(Long id) {
+    public void deleteOrder(Long id, Long userId) {
         Optional<Order> orderOpt = orderRepository.findById(id);
         if (orderOpt.isEmpty()) {
-            throw new RuntimeException("Order not found");
+            throw new ResourceNotFoundException("Order not found with id: " + id);
         }
+
         Order order = orderOpt.get();
+
+        // Kiểm tra quyền sở hữu: userId từ token phải khớp với userId của đơn hàng
+        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication()
+                .getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+
+        // Kiểm tra quyền sở hữu và trạng thái
+        if (!isAdmin) { // Nếu không phải ADMIN
+            if (!order.getUser().getId().equals(userId)) {
+                throw new SecurityException("You are not authorized to delete this order");
+            }
+            if (order.getStatus() != OrderStatus.PENDING) {
+                throw new IllegalStateException("Order can only be deleted when its status is PENDING");
+            }
+        }
+
+        // Hoàn lại stock cho sản phẩm
         List<OrderDetail> details = orderDetailRepository.findAllByOrder(order);
         for (OrderDetail detail : details) {
             Product product = detail.getProduct();
-            product.setStock(product.getStock() + detail.getQuantity()); // Hoàn lại stock
+            product.setStock(product.getStock() + detail.getQuantity());
             productRepository.save(product);
         }
+
+        // Xóa chi tiết đơn hàng và đơn hàng
         orderDetailRepository.deleteByOrder(order);
         orderRepository.delete(order);
     }
