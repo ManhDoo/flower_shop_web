@@ -22,8 +22,14 @@ public class Order {
     private double total_price;
     private LocalDateTime create_at;
 
+    private String place_of_receipt;
+    private int phone_of_receipt;
+
+    private int total_quantity_order;
+
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-
+    @Enumerated(EnumType.STRING)
+    private PayMethodName payMethod;
 }

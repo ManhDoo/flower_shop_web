@@ -68,26 +68,25 @@ public class OrderController {
         ));
     }
 
-    @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Map<String, Object>> updateOrder(@RequestHeader("Authorization") String token, @PathVariable Long id, @Valid @RequestBody OrderRequest req, BindingResult result) {
-        Map<String, Object> response = new HashMap<>();
-
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "status", "error",
-                    "message", result.getAllErrors().get(0).getDefaultMessage(),
-                    "data", null
-            ));
-        }
-
-        Order updatedOrder = orderService.updateOrder(token, id, req);
-        return ResponseEntity.ok(Map.of(
-                "status", "success",
-                "message", "Update order successful",
-                "data", updatedOrder
-        ));
-    }
+//    @PutMapping("/{id}")
+//    @PreAuthorize("hasRole('ADMIN')")
+//    public ResponseEntity<Map<String, Object>> updateOrder(@RequestHeader("Authorization") String token, @PathVariable Long id, @Valid @RequestBody OrderRequest req, BindingResult result) {
+//        Map<String, Object> response = new HashMap<>();
+//
+//        if (result.hasErrors()) {
+//            return ResponseEntity.badRequest().body(Map.of(
+//                    "status", "error",
+//                    "message", result.getAllErrors().get(0).getDefaultMessage()
+//            ));
+//        }
+//
+//        Order updatedOrder = orderService.updateOrder(token, id, req);
+//        return ResponseEntity.ok(Map.of(
+//                "status", "success",
+//                "message", "Update order successful",
+//                "data", updatedOrder
+//        ));
+//    }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")

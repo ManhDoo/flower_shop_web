@@ -24,7 +24,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/error").permitAll()// Sử dụng lambda expression
                         .requestMatchers("/api/auth/**").permitAll() // Cho phép tất cả truy cập đăng ký/đăng nhập
-                        .requestMatchers("/api/users/**").hasAnyAuthority("USER", "ADMIN") // CRUD cho USER và ADMIN
                         .requestMatchers("/api/users/delete/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
