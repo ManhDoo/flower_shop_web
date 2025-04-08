@@ -77,7 +77,6 @@ public class CartService {
             // Nếu đã có, cập nhật số lượng
             cartItem.setQuantity(cartItem.getQuantity() + quantity);
         }
-
         // Lưu lại thay đổi
         cartItemRepository.save(cartItem);
         cartRepository.save(cart);
