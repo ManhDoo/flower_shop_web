@@ -347,21 +347,19 @@ public class OrderService {
 
     }
 
-    @Transactional
-    public OrderResponse updateOrderStatus(Long orderId, OrderStatus newStatus) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + orderId));
-
-        // Kiểm tra nếu trạng thái mới hợp lệ
-        if (order.getStatus() == OrderStatus.CANCELLED) {
-            throw new IllegalStateException("Cannot update a cancelled order!");
+    public List<OrderResponse> filterOrderByStatus(String status) {
+        OrderStatus orderStatus;
+        try {
+            orderStatus = OrderStatus.valueOf(status.toUpperCase()); // Chuyển String thành OrderStatus
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid status: " + status);
         }
-
-        order.setStatus(newStatus);
-        Order updatedOrder = orderRepository.save(order);
-
-        return convertToOrderResponse(orderRepository.save(order));
+        return orderRepository.findByStatus(orderStatus)
+                .stream()
+                .map(this::convertToOrderResponse)
+                .collect(Collectors.toList());
     }
+
     private OrderResponse convertToOrderResponse(Order order) {
         return new OrderResponse(
                 order.getId(),
@@ -383,5 +381,20 @@ public class OrderService {
                 order.getTotal_quantity_order(),
                 order.getPayMethod() != null ? order.getPayMethod().name() : "UNKNOWN"
         );
+    }
+
+    public OrderResponse updateOrderStatus(Long orderId, OrderStatus newStatus) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + orderId));
+
+        // Kiểm tra nếu trạng thái mới hợp lệ
+        if (order.getStatus() == OrderStatus.CANCELLED) {
+            throw new IllegalStateException("Cannot update a cancelled order!");
+        }
+
+        order.setStatus(newStatus);
+        Order updatedOrder = orderRepository.save(order);
+
+        return convertToOrderResponse(orderRepository.save(order));
     }
 }

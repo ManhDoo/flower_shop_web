@@ -68,6 +68,26 @@ public class OrderController {
         ));
     }
 
+    @GetMapping("/status/{status}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<Map<String, Object>> filterOrderByStatus(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable String status) {
+        try {
+            List<OrderResponse> orders = orderService.filterOrderByStatus(status);
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "message", "Get orders by status successful",
+                    "data", orders
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "error",
+                    "message", e.getMessage()
+            ));
+        }
+    }
+
 //    @PutMapping("/{id}")
 //    @PreAuthorize("hasRole('ADMIN')")
 //    public ResponseEntity<Map<String, Object>> updateOrder(@RequestHeader("Authorization") String token, @PathVariable Long id, @Valid @RequestBody OrderRequest req, BindingResult result) {
