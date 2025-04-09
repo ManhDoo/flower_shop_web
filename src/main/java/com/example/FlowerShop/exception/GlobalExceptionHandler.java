@@ -59,4 +59,23 @@ public class GlobalExceptionHandler {
         response.put("message", "An unexpected error occurred: " + (ex.getMessage() != null ? ex.getMessage() : "Unknown error"));
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    // Xử lý lỗi khi email đã tồn tại
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<Map<String, Object>> handleEmailAlreadyExistsException(EmailAlreadyExistsException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "error");
+        response.put("message", ex.getMessage());
+        response.put("code", "EMAIL_ALREADY_EXISTS"); // Tùy chọn: thêm mã lỗi để frontend dễ xử lý
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidCredentialsException(InvalidCredentialsException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "error");
+        response.put("message", ex.getMessage());
+        response.put("code", "INVALID_CREDENTIALS");
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED); // 401
+    }
 }

@@ -64,4 +64,11 @@ public Product createProduct(ProductRequest req) {
 
         productRepository.delete(product);
     }
+
+    public List<Product> searchProductsByName(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return productRepository.findAll(); // Trả về tất cả nếu từ khóa rỗng
+        }
+        return productRepository.findByNameContainingIgnoreCase(keyword);
+    }
 }

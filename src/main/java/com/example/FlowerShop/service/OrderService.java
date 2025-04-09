@@ -305,7 +305,7 @@ public class OrderService {
         }
 
         // Xóa chi tiết đơn hàng và đơn hàng
-        orderDetailRepository.deleteByOrder(order);
+        order.setStatus(OrderStatus.CANCELLED);
         orderRepository.delete(order);
     }
     public List<OrderResponse> getAllOrdersByUser(Long userId) {

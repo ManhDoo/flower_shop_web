@@ -4,6 +4,8 @@ import com.example.FlowerShop.config.JwtUtil;
 import com.example.FlowerShop.dto.request.LoginRequest;
 import com.example.FlowerShop.dto.request.RegisterRequest;
 import com.example.FlowerShop.dto.response.AuthResponse;
+import com.example.FlowerShop.exception.EmailAlreadyExistsException;
+import com.example.FlowerShop.exception.InvalidCredentialsException;
 import com.example.FlowerShop.model.User;
 import com.example.FlowerShop.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +28,7 @@ public class AuthService {
     public AuthResponse register(RegisterRequest request) {
         Optional<User> userOpt = userRepository.findByEmail(request.getEmail());
         if (userOpt.isPresent()) {
-            throw new RuntimeException("Email already exists");
+            throw new EmailAlreadyExistsException("Email already exists");
         }
 
         User user = new User();
@@ -44,7 +46,7 @@ public class AuthService {
     public AuthResponse login(LoginRequest request) {
         Optional<User> userOpt = userRepository.findByEmail(request.getEmail());
         if (userOpt.isEmpty() || !passwordEncoder.matches(request.getPassword(), userOpt.get().getPassword())) {
-            throw new RuntimeException("Invalid email or password");
+            throw new InvalidCredentialsException("Invalid email or password");
         }
         User user = userOpt.get();
         String token = jwtUtil.generateToken(user.getId() ,user.getEmail(), user.getRole());

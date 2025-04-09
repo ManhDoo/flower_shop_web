@@ -82,4 +82,15 @@ public class ProductController {
         );
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<Map<String, Object>> searchProducts(@RequestParam("keyword") String keyword) {
+        List<Product> products = productService.searchProductsByName(keyword);
+        Map<String, Object> response = Map.of(
+                "status", "success",
+                "message", "Search products successfully",
+                "data", products
+        );
+        return ResponseEntity.ok(response);
+    }
 }
