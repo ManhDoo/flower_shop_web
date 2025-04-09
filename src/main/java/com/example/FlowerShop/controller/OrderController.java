@@ -90,6 +90,23 @@ public class OrderController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public ResponseEntity<Map<String, Object>> cancelOrder(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable Long id) {
+
+        String token = authHeader.replace("Bearer ", "");
+        Long userId = jwtUtil.extractUserId(token);
+
+        orderService.cancelOrder(id, userId);
+
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "message", "Delete order successful"
+        ));
+    }
+
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<Map<String, Object>> deleteOrder(
             @RequestHeader("Authorization") String authHeader,
             @PathVariable Long id) {
@@ -97,13 +114,14 @@ public class OrderController {
         String token = authHeader.replace("Bearer ", "");
         Long userId = jwtUtil.extractUserId(token);
 
-        orderService.deleteOrder(id, userId);
+        orderService.deleteCancelledOrder(id, userId);
 
         return ResponseEntity.ok(Map.of(
                 "status", "success",
                 "message", "Delete order successful"
         ));
     }
+
     @GetMapping
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<Map<String, Object>> getUserCart(@RequestHeader("Authorization") String token) {

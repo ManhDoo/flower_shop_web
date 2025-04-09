@@ -273,7 +273,7 @@ public class OrderService {
 
 
     @Transactional
-    public void deleteOrder(Long id, Long userId) {
+    public void cancelOrder(Long id, Long userId) {
         Optional<Order> orderOpt = orderRepository.findById(id);
         if (orderOpt.isEmpty()) {
             throw new ResourceNotFoundException("Order not found with id: " + id);
@@ -304,9 +304,40 @@ public class OrderService {
             productRepository.save(product);
         }
 
-        // Xóa chi tiết đơn hàng và đơn hàng
+        // Đưa trạng thái order về cancelled
         order.setStatus(OrderStatus.CANCELLED);
 
+    }
+
+    @Transactional
+    public void deleteCancelledOrder(Long id, Long userId) {
+        Optional<Order> orderOpt = orderRepository.findById(id);
+        if (orderOpt.isEmpty()) {
+            throw new ResourceNotFoundException("Order not found with id: " + id);
+        }
+
+        Order order = orderOpt.get();
+
+        // Kiểm tra quyền sở hữu
+        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication()
+                .getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!isAdmin) {
+            if (!order.getUser().getId().equals(userId)) {
+                throw new SecurityException("You are not authorized to delete this order");
+            }
+        }
+
+        // Kiểm tra trạng thái phải là CANCELLED
+        if (order.getStatus() != OrderStatus.CANCELLED) {
+            throw new IllegalStateException("Order can only be deleted when its status is CANCELLED");
+        }
+
+        // Xóa chi tiết đơn hàng trước
+        orderDetailRepository.deleteByOrder(order);
+        // Xóa đơn hàng
+        orderRepository.delete(order);
     }
 
     public List<OrderResponse> getAllOrdersByUser(Long userId) {

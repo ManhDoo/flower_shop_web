@@ -66,7 +66,7 @@ public class GlobalExceptionHandler {
         Map<String, Object> response = new HashMap<>();
         response.put("status", "error");
         response.put("message", ex.getMessage());
-        response.put("code", "EMAIL_ALREADY_EXISTS"); // Tùy chọn: thêm mã lỗi để frontend dễ xử lý
+        response.put("code", "EMAIL_ALREADY_EXISTS");
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
