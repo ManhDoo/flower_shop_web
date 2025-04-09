@@ -306,8 +306,9 @@ public class OrderService {
 
         // Xóa chi tiết đơn hàng và đơn hàng
         order.setStatus(OrderStatus.CANCELLED);
-        orderRepository.delete(order);
+
     }
+
     public List<OrderResponse> getAllOrdersByUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
