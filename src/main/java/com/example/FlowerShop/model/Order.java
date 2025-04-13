@@ -22,6 +22,7 @@ public class Order {
     private double total_price;
     private LocalDateTime create_at;
 
+    private String name_of_receipt;
     private String place_of_receipt;
     private int phone_of_receipt;
 

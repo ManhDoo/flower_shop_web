@@ -137,6 +137,7 @@ public class OrderService {
         Order order = new Order();
         order.setUser(user);
         order.setCreate_at(LocalDateTime.now());
+        order.setName_of_receipt(req.getName_of_receipt());
         order.setPlace_of_receipt(req.getPlace_of_receipt());
         order.setPhone_of_receipt(req.getPhone_of_receipt());
         order.setStatus(OrderStatus.PENDING);
@@ -180,6 +181,7 @@ public class OrderService {
                 order.getStatus().name(),
                 order.getUser().getId(),
                 order.getUser().getName(),
+                order.getName_of_receipt(),
                 order.getPlace_of_receipt(),
                 order.getPhone_of_receipt(),
                 order.getTotal_quantity_order(),
@@ -368,6 +370,7 @@ public class OrderService {
                 order.getStatus().name(),
                 order.getUser().getId(),
                 order.getUser().getName(),
+                order.getName_of_receipt(),
                 order.getPlace_of_receipt(),
                 order.getPhone_of_receipt(),
                 orderDetailRepository.findAllByOrder(order).stream()

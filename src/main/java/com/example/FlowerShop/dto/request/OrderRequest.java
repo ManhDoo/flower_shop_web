@@ -12,6 +12,7 @@ import java.util.List;
 public class OrderRequest {
     private Long userId;
 
+    private String name_of_receipt;
     private String place_of_receipt;
     private int phone_of_receipt;
 
