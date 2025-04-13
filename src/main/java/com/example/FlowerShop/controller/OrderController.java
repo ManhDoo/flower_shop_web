@@ -131,4 +131,15 @@ public class OrderController {
                 "data", updatedOrder
         ));
     }
+
+    @GetMapping("/payment-methods")
+    public ResponseEntity<Map<String, Object>> getPaymentMethods() {
+        List<String> methods = orderService.getAllPaymentMethods();
+
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "message", "Get payment methods successful",
+                "data", methods
+        ));
+    }
 }

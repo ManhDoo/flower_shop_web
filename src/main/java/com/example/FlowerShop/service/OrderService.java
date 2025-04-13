@@ -352,4 +352,11 @@ public class OrderService {
                 order.getPayMethod() != null ? order.getPayMethod().name() : "UNKNOWN"
         );
     }
+
+    public List<String> getAllPaymentMethods() {
+        return List.of(PayMethodName.values()).stream()
+                .map(Enum::name)
+                .collect(Collectors.toList());
+    }
+
 }
