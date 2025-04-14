@@ -1,5 +1,6 @@
 package com.example.FlowerShop.controller;
 
+import com.example.FlowerShop.dto.request.CartItemRequest;
 import com.example.FlowerShop.dto.response.CartResponse;
 import com.example.FlowerShop.model.CartItem;
 import com.example.FlowerShop.service.CartService;
@@ -38,4 +39,12 @@ public class CartController {
         List<CartResponse> cartResponses = cartService.getCartItems(token);
         return ResponseEntity.ok(Map.of("status", "success", "data", cartResponses));
     }
+    @PutMapping("/update")
+    public ResponseEntity<?> updateCartItemQuantity(
+            @RequestHeader("Authorization") String token,
+            @RequestBody CartItemRequest request) {
+        cartService.updateCartItemQuantity(token, request.getCartItemId(), request.getQuantity());
+        return ResponseEntity.ok(Map.of("status", "success", "message", "Update cart successfully"));
+    }
+
 }
