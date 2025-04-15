@@ -25,9 +25,11 @@ public class JwtUtil {
     public Claims extractClaims(String token) {
         return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
     }
+
     public Long extractUserId(String token) {
         return extractClaims(token).get("userId", Long.class);
     }
+
     public String extractEmail(String token) {
         return extractClaims(token).getSubject();
     }
@@ -39,6 +41,4 @@ public class JwtUtil {
     public boolean isTokenExpired(String token) {
         return extractClaims(token).getExpiration().before(new Date());
     }
-
-
 }

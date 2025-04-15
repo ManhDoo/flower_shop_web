@@ -17,15 +17,14 @@ public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @ManyToOne
     private User user;
     private double total_price;
     private LocalDateTime create_at;
-
     private String name_of_receipt;
     private String place_of_receipt;
     private int phone_of_receipt;
-
     private int total_quantity_order;
 
     @Enumerated(EnumType.STRING)

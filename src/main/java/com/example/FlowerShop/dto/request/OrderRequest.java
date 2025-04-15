@@ -16,10 +16,6 @@ public class OrderRequest {
     private String place_of_receipt;
     private int phone_of_receipt;
 
-//    @NotEmpty(message = "Order details list cannot be blank")
-//    @Valid
-//    private List<OrderDetailRequest> orderDetails;
-
     private List<Long> cartItemIds;
 
     private String status;

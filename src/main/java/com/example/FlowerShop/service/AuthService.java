@@ -37,7 +37,7 @@ public class AuthService {
         user.setAddress(request.getAddress());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(request.getRole() != null ? request.getRole() : "USER"); // Mặc định là USER nếu không chỉ định
+        user.setRole(request.getRole() != null ? request.getRole() : "USER");
         userRepository.save(user);
         String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole());
         return new AuthResponse(token, "User registered successfully", user.getRole());

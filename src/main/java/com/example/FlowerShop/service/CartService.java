@@ -45,7 +45,6 @@ public class CartService {
         }
         Long userId = jwtUtil.extractUserId(token);
 
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -74,11 +73,9 @@ public class CartService {
             cartItem.setQuantity(quantity);
             cart.getItems().add(cartItem);
         } else {
-            // Nếu đã có, cập nhật số lượng
             cartItem.setQuantity(cartItem.getQuantity() + quantity);
         }
 
-        // Lưu lại thay đổi
         cartItemRepository.save(cartItem);
         cartRepository.save(cart);
 

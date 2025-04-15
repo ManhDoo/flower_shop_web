@@ -42,78 +42,6 @@ public class OrderService {
     private final CartItemRepository cartItemRepository;
     private final CartRepository cartRepository;
 
-
-//    @Transactional
-//    public OrderResponse createOrder(String token, OrderRequest req) {
-//        Long user_id = jwtUtil.extractUserId(token);
-//
-//        User user = userRepository.findById(user_id)
-//                .orElseThrow(() -> new RuntimeException("User not found"));
-//
-//        Order order = new Order();
-//        order.setUser(user);
-//        order.setCreate_at(LocalDateTime.now());
-//        order.setPlace_of_receipt(req.getPlace_of_receipt());
-//        order.setPhone_of_receipt(req.getPhone_of_receipt());
-//        order.setStatus(OrderStatus.PENDING);
-//        order.setPayMethod(req.getPayMethod());
-//        order = orderRepository.save(order);
-//
-//        double totalPrice = processNewOrderDetails(order, req);
-//
-//        order.setTotal_price(totalPrice);
-//        orderRepository.save(order);
-//
-//        return new OrderResponse(order.getId(), order.getTotal_price(), order.getCreate_at(), order.getStatus().name(), order.getUser().getId(), order.getUser().getName(), order.getPlace_of_receipt(), order.getPhone_of_receipt(), order.getPayMethod().name());
-//    }
-
-//    @Transactional
-//    public OrderResponse createOrder(String token, OrderRequest req) {
-//        Long user_id = jwtUtil.extractUserId(token);
-//        User user = userRepository.findById(user_id)
-//                .orElseThrow(() -> new RuntimeException("User not found"));
-//
-//        Cart cart = cartService.getCartByUser(user);
-//        if (cart.getItems().isEmpty()) {
-//            throw new RuntimeException("Cart is empty");
-//        }
-//
-//        Order order = new Order();
-//        order.setUser(user);
-//        order.setCreate_at(LocalDateTime.now());
-//        order.setPlace_of_receipt(req.getPlace_of_receipt());
-//        order.setPhone_of_receipt(req.getPhone_of_receipt());
-//        order.setStatus(OrderStatus.PENDING);
-//        order.setPayMethod(req.getPayMethod());
-//        order = orderRepository.save(order);
-//
-//        double totalPrice = 0;
-//        for (CartItem cartItem : cart.getItems()) {
-//            OrderDetail orderDetail = new OrderDetail();
-//            orderDetail.setOrder(order);
-//            orderDetail.setProduct(cartItem.getProduct());
-//            orderDetail.setQuantity(cartItem.getQuantity());
-//            orderDetail.setPrice(cartItem.getProduct().getPrice());
-//            orderDetailRepository.save(orderDetail);
-//
-//            totalPrice += cartItem.getProduct().getPrice() * cartItem.getQuantity();
-//
-//            // Giảm stock sản phẩm
-//            Product product = cartItem.getProduct();
-//            product.setStock(product.getStock() - cartItem.getQuantity());
-//            productRepository.save(product);
-//        }
-//
-//        order.setTotal_price(totalPrice);
-//        orderRepository.save(order);
-//
-//        cartItemRepository.deleteAll(cart.getItems());
-//
-//        return new OrderResponse(order.getId(), order.getTotal_price(), order.getCreate_at(),
-//                order.getStatus().name(), order.getUser().getId(), order.getUser().getName(),
-//                order.getPlace_of_receipt(), order.getPhone_of_receipt(), order.getPayMethod().name());
-//    }
-
     @Transactional
     public OrderResponse createOrder(String token, OrderRequest req) {
         Long userId = jwtUtil.extractUserId(token);
@@ -171,7 +99,7 @@ public class OrderService {
         order.setTotal_quantity_order(totalQuantityOrder);
         orderRepository.save(order);
 
-        cart.getItems().removeAll(selectedItems); // Cập nhật danh sách items của Cart
+        cart.getItems().removeAll(selectedItems);
         cartRepository.save(cart);
 
         return new OrderResponse(
@@ -196,43 +124,6 @@ public class OrderService {
             productRepository.save(product);
         }
     }
-
-//    private double processNewOrderDetails(Order order, OrderRequest req) {
-//        double totalPrice = 0;
-//
-//        // Lấy danh sách Product một lần, tránh query DB nhiều lần
-//        Map<Long, Product> productMap = productRepository.findAllById(
-//                req.getOrderDetails().stream().map(OrderDetailRequest::getProductId).toList()
-//        ).stream().collect(Collectors.toMap(Product::getId, product -> product));
-//
-//        for (OrderDetailRequest detailReq : req.getOrderDetails()) {
-//            Product product = productMap.get(detailReq.getProductId());
-//
-//            if (product == null) {
-//                throw new RuntimeException("Product not found with ID: " + detailReq.getProductId());
-//            }
-//
-//            if (product.getStock() < detailReq.getQuantity()) {
-//                throw new RuntimeException(product.getName() + " Insufficient stock. Remaining: " + product.getStock());
-//            }
-//
-//            OrderDetail orderDetail = new OrderDetail();
-//            orderDetail.setOrder(order);
-//            orderDetail.setProduct(product);
-//            orderDetail.setQuantity(detailReq.getQuantity());
-//            orderDetail.setPrice(product.getPrice());
-//            orderDetailRepository.save(orderDetail);
-//
-//            // Trừ tồn kho
-//            product.setStock(product.getStock() - detailReq.getQuantity());
-//            productRepository.save(product);
-//
-//            totalPrice += product.getPrice() * detailReq.getQuantity();
-//        }
-//
-//        return totalPrice;
-//    }
-
 
     public List<OrderResponse> getAllOrders() {
         return orderRepository.findAll().stream().map(this::convertToOrderResponse).collect(Collectors.toList());
@@ -283,12 +174,10 @@ public class OrderService {
 
         Order order = orderOpt.get();
 
-        // Kiểm tra quyền sở hữu: userId từ token phải khớp với userId của đơn hàng
         boolean isAdmin = SecurityContextHolder.getContext().getAuthentication()
                 .getAuthorities().stream()
                 .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
 
-        // Kiểm tra quyền sở hữu và trạng thái
         if (!isAdmin) {
             if (!order.getUser().getId().equals(userId)) {
                 throw new SecurityException("You are not authorized to delete this order");
@@ -306,7 +195,6 @@ public class OrderService {
             productRepository.save(product);
         }
 
-        // Đưa trạng thái order về cancelled
         order.setStatus(OrderStatus.CANCELLED);
 
     }
@@ -320,7 +208,6 @@ public class OrderService {
 
         Order order = orderOpt.get();
 
-        // Kiểm tra quyền sở hữu
         boolean isAdmin = SecurityContextHolder.getContext().getAuthentication()
                 .getAuthorities().stream()
                 .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
@@ -331,14 +218,12 @@ public class OrderService {
             }
         }
 
-        // Kiểm tra trạng thái phải là CANCELLED
         if (order.getStatus() != OrderStatus.CANCELLED) {
             throw new IllegalStateException("Order can only be deleted when its status is CANCELLED");
         }
 
-        // Xóa chi tiết đơn hàng trước
         orderDetailRepository.deleteByOrder(order);
-        // Xóa đơn hàng
+
         orderRepository.delete(order);
     }
 
@@ -390,7 +275,6 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + orderId));
 
-        // Kiểm tra nếu trạng thái mới hợp lệ
         if (order.getStatus() == OrderStatus.CANCELLED) {
             throw new IllegalStateException("Cannot update a cancelled order!");
         }

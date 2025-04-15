@@ -23,11 +23,6 @@ public class UserService {
         return userRepository.findAll();
     }
 
-//    public Optional<User> getUserById(Long id) {
-//
-//        return userRepository.findById(id);
-//    }
-
     public List<UserResponse> getUserById(Long id) {
 
         return userRepository.findById(id)
@@ -45,7 +40,6 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Chỉ cập nhật các trường name, phone, address
         user.setName(updatedUser.getName());
         user.setPhone(updatedUser.getPhone());
         user.setAddress(updatedUser.getAddress());

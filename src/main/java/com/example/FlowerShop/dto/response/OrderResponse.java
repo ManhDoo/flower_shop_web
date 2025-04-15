@@ -21,14 +21,6 @@ public class OrderResponse {
     private int total_quantity_order;
     private String payMethod;
 
-//    public OrderResponse(Long id, double total_price, LocalDateTime create_at, String status, List<OrderDetailResponse> orderDetailResponsesList) {
-//        this.id = id;
-//        this.total_price = total_price;
-//        this.create_at = create_at;
-//        this.status = status;
-//        this.orderDetailResponsesList = orderDetailResponsesList;
-//    }
-
     public OrderResponse() {
     }
 
@@ -49,7 +41,6 @@ public class OrderResponse {
         this.payMethod = payMethod;
     }
 
-    // Constructor không có orderDetailResponsesList (dùng trong trường hợp không cần chi tiết đơn hàng)
     public OrderResponse(Long id, double total_price, LocalDateTime create_at, String status,
                          Long userId, String userName, String name_of_receipt, String place_of_receipt, int phone_of_receipt, int total_quantity_order, String payMethod) {
         this.id = id;

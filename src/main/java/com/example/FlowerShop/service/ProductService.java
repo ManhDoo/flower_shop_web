@@ -16,24 +16,21 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
-//    public Product createProduct(Product product) {
-//        return productRepository.save(product);
-//    }
-public Product createProduct(ProductRequest req) {
-    Optional<Product> productOpt = productRepository.findByName(req.getName());
-    if(productOpt.isPresent()){
-        throw new RuntimeException("Product already exists");
-    }
-    Product product = new Product();
-    product.setName(req.getName());
-    product.setDescription(req.getDescription());
-    product.setImage(req.getImage());
-    product.setPrice(req.getPrice());
-    product.setStock(req.getStock());
-    Product saveProduct = productRepository.save(product);
+    public Product createProduct(ProductRequest req) {
+        Optional<Product> productOpt = productRepository.findByName(req.getName());
+        if(productOpt.isPresent()){
+            throw new RuntimeException("Product already exists");
+        }
+        Product product = new Product();
+        product.setName(req.getName());
+        product.setDescription(req.getDescription());
+        product.setImage(req.getImage());
+        product.setPrice(req.getPrice());
+        product.setStock(req.getStock());
+        Product saveProduct = productRepository.save(product);
 
-    return saveProduct;
-}
+        return saveProduct;
+    }
 
     public List<Product> getAllProducts() {
         return productRepository.findAll();
@@ -67,7 +64,7 @@ public Product createProduct(ProductRequest req) {
 
     public List<Product> searchProductsByName(String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
-            return productRepository.findAll(); // Trả về tất cả nếu từ khóa rỗng
+            return productRepository.findAll();
         }
         return productRepository.findByNameContainingIgnoreCase(keyword);
     }

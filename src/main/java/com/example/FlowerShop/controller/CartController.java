@@ -1,7 +1,6 @@
 package com.example.FlowerShop.controller;
 
 import com.example.FlowerShop.dto.response.CartResponse;
-import com.example.FlowerShop.model.CartItem;
 import com.example.FlowerShop.service.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
