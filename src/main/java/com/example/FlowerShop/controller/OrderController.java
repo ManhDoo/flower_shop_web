@@ -7,6 +7,7 @@ import com.example.FlowerShop.model.OrderStatus;
 import com.example.FlowerShop.service.OrderService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -44,12 +45,20 @@ public class OrderController {
 
     @GetMapping("/all/orders")
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public ResponseEntity<Map<String, Object>> getAllOrders() {
-        List<OrderResponse> orders = orderService.getAllOrders();
+    public ResponseEntity<Map<String, Object>> getAllOrders(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<OrderResponse> ordersPage = orderService.getAllOrders(page, size);
         return ResponseEntity.ok(Map.of(
                 "status", "success",
-                "message", "Get order successful",
-                "data", orders
+                "message", "Get orders successful",
+                "data", Map.of(
+                        "content", ordersPage.getContent(),
+                        "totalPages", ordersPage.getTotalPages(),
+                        "totalElements", ordersPage.getTotalElements(),
+                        "currentPage", ordersPage.getNumber(),
+                        "pageSize", ordersPage.getSize()
+                )
         ));
     }
 
@@ -68,13 +77,21 @@ public class OrderController {
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> filterOrderByStatus(
             @RequestHeader("Authorization") String authHeader,
-            @PathVariable String status) {
+            @PathVariable String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
         try {
-            List<OrderResponse> orders = orderService.filterOrderByStatus(status);
+            Page<OrderResponse> ordersPage = orderService.filterOrderByStatus(status, page, size);
             return ResponseEntity.ok(Map.of(
                     "status", "success",
                     "message", "Get orders by status successful",
-                    "data", orders
+                    "data", Map.of(
+                            "content", ordersPage.getContent(),
+                            "totalPages", ordersPage.getTotalPages(),
+                            "totalElements", ordersPage.getTotalElements(),
+                            "currentPage", ordersPage.getNumber(),
+                            "pageSize", ordersPage.getSize()
+                    )
             ));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of(
@@ -140,13 +157,22 @@ public class OrderController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<Map<String, Object>> getUserCart(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<Map<String, Object>> getUserOrders(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
         Long userId = jwtUtil.extractUserId(token.substring(7));
-        List<OrderResponse> orders = orderService.getAllOrdersByUser(userId);
+        Page<OrderResponse> ordersPage = orderService.getAllOrdersByUser(userId, page, size);
         return ResponseEntity.ok(Map.of(
                 "status", "success",
                 "message", "Get orders list successful",
-                "data", orders
+                "data", Map.of(
+                        "content", ordersPage.getContent(),
+                        "totalPages", ordersPage.getTotalPages(),
+                        "totalElements", ordersPage.getTotalElements(),
+                        "currentPage", ordersPage.getNumber(),
+                        "pageSize", ordersPage.getSize()
+                )
         ));
     }
 

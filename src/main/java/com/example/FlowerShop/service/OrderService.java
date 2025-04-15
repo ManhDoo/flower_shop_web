@@ -10,6 +10,9 @@ import com.example.FlowerShop.model.*;
 import com.example.FlowerShop.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -125,9 +128,10 @@ public class OrderService {
         }
     }
 
-    public List<OrderResponse> getAllOrders() {
-        return orderRepository.findAll().stream().map(this::convertToOrderResponse).collect(Collectors.toList());
-
+    public Page<OrderResponse> getAllOrders(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return orderRepository.findAll(pageable)
+                .map(this::convertToOrderResponse);
     }
 
     public List<OrderResponse> getOrderById(Long id) {
@@ -227,24 +231,24 @@ public class OrderService {
         orderRepository.delete(order);
     }
 
-    public List<OrderResponse> getAllOrdersByUser(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-
-        return orderRepository.findAllByUser(user).stream().map(this::convertToOrderResponse).collect(Collectors.toList());
-
+    public Page<OrderResponse> getAllOrdersByUser(Long userId, int page, int size) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Pageable pageable = PageRequest.of(page, size);
+        return orderRepository.findAllByUser(user, pageable)
+                .map(this::convertToOrderResponse);
     }
 
-    public List<OrderResponse> filterOrderByStatus(String status) {
+    public Page<OrderResponse> filterOrderByStatus(String status, int page, int size) {
         OrderStatus orderStatus;
         try {
-            orderStatus = OrderStatus.valueOf(status.toUpperCase()); // Chuyển String thành OrderStatus
+            orderStatus = OrderStatus.valueOf(status.toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid status: " + status);
         }
-        return orderRepository.findByStatus(orderStatus)
-                .stream()
-                .map(this::convertToOrderResponse)
-                .collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(page, size);
+        return orderRepository.findByStatus(orderStatus, pageable)
+                .map(this::convertToOrderResponse);
     }
 
     private OrderResponse convertToOrderResponse(Order order) {
