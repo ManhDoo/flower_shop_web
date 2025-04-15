@@ -124,4 +124,28 @@ public class CartService {
                                 )).collect(Collectors.toList())
                 )).collect(Collectors.toList());
     }
+
+    public void updateCartItemQuantity(String token, Long cartItemId, int quantity) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        Long userId = jwtUtil.extractUserId(token);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new RuntimeException("Cart item not found"));
+
+        // Kiểm tra quyền sở hữu cartItem
+        if (!cartItem.getCart().getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Unauthorized to update this item");
+        }
+
+        if (quantity <= 0) {
+            cartItemRepository.delete(cartItem);
+        } else {
+            cartItem.setQuantity(quantity);
+            cartItemRepository.save(cartItem);
+        }
+    }
 }

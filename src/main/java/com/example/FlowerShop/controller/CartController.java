@@ -1,5 +1,6 @@
 package com.example.FlowerShop.controller;
 
+import com.example.FlowerShop.dto.request.CartItemRequest;
 import com.example.FlowerShop.dto.response.CartResponse;
 import com.example.FlowerShop.service.CartService;
 import lombok.RequiredArgsConstructor;
@@ -36,5 +37,13 @@ public class CartController {
     public ResponseEntity<Map<String, Object>> getCart(@RequestHeader("Authorization") String token) {
         List<CartResponse> cartResponses = cartService.getCartItems(token);
         return ResponseEntity.ok(Map.of("status", "success", "data", cartResponses));
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<?> updateCartItemQuantity(
+            @RequestHeader("Authorization") String token,
+            @RequestBody CartItemRequest request) {
+        cartService.updateCartItemQuantity(token, request.getCartItemId(), request.getQuantity());
+        return ResponseEntity.ok(Map.of("status", "success", "message", "Update cart successfully"));
     }
 }
