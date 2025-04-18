@@ -24,14 +24,13 @@ public class ProductController {
     private ProductService productService;
 
     @PostMapping
-    public ResponseEntity<Map<String, Object>> createProduct(@Valid @RequestBody ProductRequest req, BindingResult result) {
-        Product savedProduct = productService.createProduct(req);
-        Map<String, Object> response = Map.of(
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> createProduct(@Valid @RequestBody ProductRequest req) {
+        Product product = productService.createProduct(req);
+        return ResponseEntity.status(201).body(Map.of(
                 "status", "success",
-                "message", "Add product successfully",
-                "data", savedProduct
-        );
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+                "data", product
+        ));
     }
 
     @GetMapping
